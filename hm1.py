@@ -20,8 +20,7 @@ dataGT = pd.read_csv('GlobalTemperatures.csv')
 data = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
 
 #把不需要的數據drop掉
-dataGT.replace('',np.nan,inplace=True)#把所有空值變成NAN
-dataGT.replace('',np.nan,inplace=True)#把所有空值變成NAN
+dataGT.replace('',np.nan,inplace=True)
 dataGT.drop('LandMaxTemperature', axis=1 , inplace = True)
 dataGT.drop('LandMinTemperature', axis=1 , inplace = True)
 dataGT.drop('LandMaxTemperatureUncertainty', axis=1 , inplace = True)
@@ -110,11 +109,11 @@ for time in year['year']:
     t = int(time) + 10
     if t >= 2016:
         break
-    range = dataGT.loc[dataGT['year'].between(time, t)]
-    maxtemp = range.loc[range['LandAverageTemperature'].idxmax()]
-    mintemp = range.loc[range['LandAverageTemperature'].idxmin()]
-    if maxtemp['year'] != mintemp['year']:
-        rate = round((maxtemp['LandAverageTemperature'] - mintemp['LandAverageTemperature'])/(maxtemp['year'] - mintemp['year']) , 3)
+    range1 = dataGT.loc[dataGT['year'].between(time, t)]
+    maxtemp1 = range1.loc[range1['LandAverageTemperature'].idxmax()]
+    mintemp1 = range1.loc[range1['LandAverageTemperature'].idxmin()]
+    if maxtemp1['year'] != mintemp1['year']:
+        rate = round((maxtemp1['LandAverageTemperature'] - mintemp1['LandAverageTemperature'])/(maxtemp1['year'] - mintemp1['year']) , 3)
         if rate >= 0:
             ratelist1.append(rate)
             yearlist1.append(time)
@@ -127,11 +126,11 @@ for time in year['year']:
     t = int(time) + 50
     if t >=2016:
         break
-    range = dataGT.loc[dataGT['year'].between(time, t)]
-    maxtemp = range.loc[range['LandAverageTemperature'].idxmax()]
-    mintemp = range.loc[range['LandAverageTemperature'].idxmin()]
-    if maxtemp['year'] != mintemp['year']:
-        rate = round((maxtemp['LandAverageTemperature'] - mintemp['LandAverageTemperature'])/(maxtemp['year'] - mintemp['year']) , 3)
+    range2 = dataGT.loc[dataGT['year'].between(time, t)]
+    maxtemp2 = range2.loc[range2['LandAverageTemperature'].idxmax()]
+    mintemp2 = range2.loc[range2['LandAverageTemperature'].idxmin()]
+    if maxtemp2['year'] != mintemp2['year']:
+        rate = round((maxtemp2['LandAverageTemperature'] - mintemp2['LandAverageTemperature'])/(maxtemp2['year'] - mintemp2['year']) , 3)
         if rate >= 0:
             ratelist2.append(rate)
             yearlist2.append(time)
@@ -144,11 +143,11 @@ for time in year['year']:
     t = int(time) + 100
     if t >= 2016:
         break
-    range = dataGT.loc[dataGT['year'].between(time, t)]
-    maxtemp = range.loc[range['LandAverageTemperature'].idxmax()]
-    mintemp = range.loc[range['LandAverageTemperature'].idxmin()]
-    if maxtemp['year'] != mintemp['year']:
-        rate = round((maxtemp['LandAverageTemperature'] - mintemp['LandAverageTemperature'])/(maxtemp['year'] - mintemp['year']) , 3)
+    range3 = dataGT.loc[dataGT['year'].between(time, t)]
+    maxtemp3 = range3.loc[range3['LandAverageTemperature'].idxmax()]
+    mintemp3 = range3.loc[range3['LandAverageTemperature'].idxmin()]
+    if maxtemp3['year'] != mintemp3['year']:
+        rate = round((maxtemp3['LandAverageTemperature'] - mintemp3['LandAverageTemperature'])/(maxtemp3['year'] - mintemp3['year']) , 3)
         if rate >= 0:
             ratelist3.append(rate)
             yearlist3.append(time)
@@ -161,9 +160,9 @@ for time in year['year']:
     t = int(time) + 200
     if t >= 2016:
         break
-    range = dataGT.loc[dataGT['year'].between(time, t)]
-    maxtemp = range.loc[range['LandAverageTemperature'].idxmax()]
-    mintemp = range.loc[range['LandAverageTemperature'].idxmin()]
+    range4 = dataGT.loc[dataGT['year'].between(time, t)]
+    maxtemp = range4.loc[range4['LandAverageTemperature'].idxmax()]
+    mintemp = range4.loc[range4['LandAverageTemperature'].idxmin()]
     if maxtemp['year'] != mintemp['year']:
         rate = round((maxtemp['LandAverageTemperature'] - mintemp['LandAverageTemperature'])/(maxtemp['year'] - mintemp['year']) , 3)
         if rate >= 0:
@@ -173,8 +172,7 @@ for time in year['year']:
     if rate >= max(allratelist4):
         maxratedate4 = time 
 
-#用資料來畫出散步圖並列出用其period最高的rate
-plt.figure(figsize = (20,10))
+plt.figure(figsize=(20,10))
 plt.subplot(2,2,1)
 plt.title("The fastest rate in the range of 10 years")
 plt.scatter(yearlist1 , ratelist1 , s=50)
@@ -200,6 +198,12 @@ plt.show()
 #3. Which country is the hottest one and which is the coldest one?
 #依照國家來分組並算出均溫
 result= data.groupby('Country')['AverageTemperature'].mean()
+maxTemp = result.max()
+maxCntry = result.loc[result == maxTemp].index[0]
+
+minTemp = result.min()
+minCntry = result.loc[result == minTemp].index[0]
+
 top3 = result.sort_values(ascending= False).head(3)
 wst3 = result.sort_values(ascending=True).head(3)
 country1 = result.loc[top3.index]
@@ -211,11 +215,11 @@ plt.title("The top three hottest countries.")
 plt.bar(np.arange(len(country1)), top3.values , width= 0.5)
 plt.xticks(np.arange(len(country1)), country1.index)
 plt.ylabel('Temperature')
-
+plt.text(0.1 , 0.9 , f"The hottest country:{maxCntry}\nAverage temperature:{maxTemp}", transform=plt.gca().transAxes , fontsize = 8 , color = "black")
 plt.subplot(1,2,2)
 plt.title("The top three coldest countries.")
 plt.bar(np.arange(len(country2)), wst3.values , width= 0.5)
 plt.xticks(np.arange(len(country2)), country2.index)
 plt.ylabel('Temperature')
-
+plt.text(0.1 , 0.9 , f"The hottest country:{minCntry}\nAverage temperature:{minTemp}", transform=plt.gca().transAxes , fontsize = 8 , color = "black")
 plt.show()
