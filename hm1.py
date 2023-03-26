@@ -62,7 +62,7 @@ for num in dataGT['year']:
 temp= dataGT.groupby('year')['LandAverageTemperature'].mean()
 year = pd.DataFrame(dataGT['year']).drop_duplicates()
 
-plt.figure(figsize = (50,5))
+plt.figure(figsize = (10,5))
 plt.subplot(1,2,1)
 plt.title("The temperature ")
 plt.ylabel('landaveragetemp')
@@ -75,6 +75,7 @@ p = np.poly1d(coefficients)
 r_squared = r2_score(y, p(x))
 plt.plot(x, p(x), color='red')
 plt.text(0.6, 0.9, 'R-squared = {:.3f}'.format(r_squared), transform=plt.gca().transAxes)
+plt.show()
 
 
 
@@ -120,10 +121,6 @@ for time in year['year']:
     allratelist1.append(rate)
     if rate >= max(allratelist1):
         maxratedate1 = time
-
-
- 
- 
  
  #----------------------------------------------------------------------------------------------------
 for time in year['year']:
@@ -141,6 +138,7 @@ for time in year['year']:
     allratelist2.append(rate)
     if rate >= max(allratelist2):
         maxratedate2 = time 
+        
 #----------------------------------------------------------------------------------------------------
 for time in year['year']:
     t = int(time) + 100
@@ -175,6 +173,49 @@ for time in year['year']:
     if rate >= max(allratelist4):
         maxratedate4 = time 
 
+#用資料來畫出散步圖並列出用其period最高的rate
+plt.figure(figsize = (20,10))
+plt.subplot(2,2,1)
+plt.title("The fastest rate in the range of 10 years")
+plt.scatter(yearlist1 , ratelist1 , s=50)
+plt.text(0.1 , 0.8 , f"Rate: {max(ratelist1)}\nYear: {maxratedate1} ~ {maxratedate1 + 10}", transform=plt.gca().transAxes , fontsize = 8 , color = "blue")
+
+plt.subplot(2,2,2)
+plt.title("The fastest rate in the range of 50 years")
+plt.scatter(yearlist2 , ratelist2 , s=50)
+plt.text(0.1 , 0.8 , f"Rate :{max(ratelist2)}\nYears:{maxratedate2}~{maxratedate2 + 10}", transform=plt.gca().transAxes , fontsize = 8 , color = "blue")
+plt.subplot(2,2,3)
+plt.title("The fastest rate in the range of 100 years")
+plt.scatter(yearlist3 , ratelist3 , s=50)
+plt.text(0.1 , 0.8 , f"Rate :{max(ratelist3)}\nYears:{maxratedate3}~{maxratedate3 + 10}", transform=plt.gca().transAxes , fontsize = 8 , color = "blue")
+
+plt.subplot(2,2,4)
+plt.title("The fastest rate in the range of 200 years")
+plt.scatter(yearlist4 , ratelist4 , s=50)
+plt.text(0.8 , 0.8 , f"Rate :{max(ratelist4)}\nYears:{maxratedate4}~{maxratedate4 + 10}", transform=plt.gca().transAxes , fontsize = 8 , color = "blue")
+
+plt.show()
 
 
+#3. Which country is the hottest one and which is the coldest one?
+#依照國家來分組並算出均溫
+result= data.groupby('Country')['AverageTemperature'].mean()
+top3 = result.sort_values(ascending= False).head(3)
+wst3 = result.sort_values(ascending=True).head(3)
+country1 = result.loc[top3.index]
+country2 = result.loc[wst3.index]
 
+plt.figure(figsize=(10,5))
+plt.subplot(1,2,1)
+plt.title("The top three hottest countries.")
+plt.bar(np.arange(len(country1)), top3.values , width= 0.5)
+plt.xticks(np.arange(len(country1)), country1.index)
+plt.ylabel('Temperature')
+
+plt.subplot(1,2,2)
+plt.title("The top three coldest countries.")
+plt.bar(np.arange(len(country2)), wst3.values , width= 0.5)
+plt.xticks(np.arange(len(country2)), country2.index)
+plt.ylabel('Temperature')
+
+plt.show()
