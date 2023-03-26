@@ -8,15 +8,11 @@ import warnings
 import matplotlib.pyplot as plt
 
 
-#關掉警報
-warnings.filterwarnings('ignore')
 
 
-#1. Is there a global warming?
-#怎麼證明有全球暖化
-#利用溫度差來證明，可以看
-#匯入data
+#匯入所需的data
 dataGT = pd.read_csv('GlobalTemperatures.csv')
+data = pd.read_csv('GlobalLandTemperaturesByCountry.csv')
 
 #把不需要的數據drop掉
 dataGT.replace('',np.nan,inplace=True)#把所有空值變成NAN
@@ -27,19 +23,21 @@ dataGT.drop('LandMaxTemperatureUncertainty', axis=1 , inplace = True)
 dataGT.drop('LandMinTemperatureUncertainty', axis=1 , inplace = True)
 dataGT.drop('LandAndOceanAverageTemperature', axis=1 , inplace = True)
 dataGT.drop('LandAndOceanAverageTemperatureUncertainty', axis=1 , inplace = True)
+data.drop('AverageTemperatureUncertainty', axis=1 , inplace = True)
+data.dropna(inplace=True , axis = 0)  
+#關掉警報
+warnings.filterwarnings('ignore')
 
 
+#1. Is there a global warming?
+#怎麼證明有全球暖化
+#利用溫度差來證明，可以看
+dataGT['year'] = pd.to_datetime(dataGT['dt']).dt.year#把dt變成真正的dt以及year
 
-#為了減少uncertainty的誤差，所以如果uncertainty超過某個數值，就讓溫度扣掉那個數值的一半
-uncertainty3 = round(dataGT['LandAverageTemperatureUncertainty']) 
-for unc in uncertainty3:
-    if unc > 3:
-        dataGT.loc[unc]['LandAverageTemperature'] -= round(dataGT['LandAverageTemperatureUncertainty']*0.5 , 5)
-        
-        
-#把nan值的行數drop掉，另外如果有年份所擁有的資料少於6個月就全部刪掉
-line = 0
+
+#數那年有幾個數值，如果少於六個就全部刪掉
 count = 0
+line = 0
 for num in dataGT['year']:
     if num == dataGT['year'][line]:
         count += 1
@@ -48,7 +46,7 @@ for num in dataGT['year']:
         line += 1
         dataGT.drop(dataGT[dataGT['year'] == num].index , inplace= True)
     elif num-1 == dataGT['year'][line]:
-        if count <= 6:
+        if count <= 8:
             line += 1
             dataGT.drop(dataGT[dataGT['year'] == num-1].index , inplace= True)
             count = 0
@@ -56,6 +54,31 @@ for num in dataGT['year']:
         else:
             line += 1
             count = 0
+
+result= dataGT.groupby('year')['LandAverageTemperature'].mean()
+year = pd.DataFrame(dataGT['year']).drop_duplicates()
+
+plt.figure(figsize = (50,5))
+plt.subplot(1,2,1)
+plt.title("The temperature ")
+plt.ylabel('landaveragetemp')
+plt.xlabel('years')                
+x = year['year']
+y = result
+plt.scatter(x , y , s = 50)
+coefficients = np.polyfit(x, y, 3)
+p = np.poly1d(coefficients)
+r_squared = r2_score(y, p(x))
+plt.plot(x, p(x), color='red')
+plt.text(0.6, 0.9, 'R-squared = {:.3f}'.format(r_squared), transform=plt.gca().transAxes)
+
+
+
+
+
+
+        
+
 
         
 #把每年的溫度取平均   
